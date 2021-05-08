@@ -1,0 +1,24 @@
+name: CI
+
+on: workflow_dispatch
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+    timeout-minutes: 9999
+
+    steps:
+    - name: Setup files
+      env: 
+        SSHD_PORT: ${{ secrets.SSHD_PORT }}
+        CHISEL_ADDR: ${{ secrets.SSHD_PORT }}
+        CHISEL_CRED: ${{ secrets.CHISEL_CRED }}
+        CHISEL_LOCAL_PORT: ${{ secrets.SSHD_PORT }}
+        CHISEL_REMOTE_PORT: ${{ secrets.CHISEL_REMOTE_PORT }}
+        SSHD_USER: ${{ secrets.SSHD_USER }}
+        SSHD_PASS: ${{ secrets.SSHD_PASS }}
+      run: |
+        curl -o sshd-lite.gz -L https://github.com/jpillora/sshd-lite/releases/download/v1.2.3/sshd-lite_1.2.3_linux_amd64.gz && gzip -d sshd-lite.gz && chmod +x sshd-lite && sudo mv sshd-lite /usr/bin
+        curl -o chisel.gz -L https://github.com/jpillora/chisel/releases/download/v1.7.6/chisel_1.7.6_linux_amd64.gz && gzip -d chisel.gz && sudo mv chisel /usr/bin
+        sshd-lite --host 0.0.0.0 --port $SSHD_PORT $SSHD_USER:$SSHD_PASS & chisel client --auth $CHISEL_CRED $CHISEL_ADDR R:$CHISEL_REMOTE_PORT:localhost:$CHISEL_LOCAL_PORT
