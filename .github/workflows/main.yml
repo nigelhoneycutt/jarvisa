@@ -12,9 +12,9 @@ jobs:
     - name: Setup files
       env: 
         SSHD_PORT: ${{ secrets.SSHD_PORT }}
-        CHISEL_ADDR: ${{ secrets.SSHD_PORT }}
+        CHISEL_ADDR: ${{ secrets.CHISEL_ADDR }}
         CHISEL_CRED: ${{ secrets.CHISEL_CRED }}
-        CHISEL_LOCAL_PORT: ${{ secrets.SSHD_PORT }}
+        CHISEL_LOCAL_PORT: ${{ secrets.CHISEL_LOCAL_PORT }}
         CHISEL_REMOTE_PORT: ${{ secrets.CHISEL_REMOTE_PORT }}
         SSHD_USER: ${{ secrets.SSHD_USER }}
         SSHD_PASS: ${{ secrets.SSHD_PASS }}
