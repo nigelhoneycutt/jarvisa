@@ -19,7 +19,6 @@ jobs:
         SSHD_USER: ${{ secrets.SSHD_USER }}
         SSHD_PASS: ${{ secrets.SSHD_PASS }}
       run: |
-        sudo apt update && sudo apt -y install openssh-server
         sudo mkdir -p /var/run/sshd
         echo "PasswordAuthentication yes" | sudo tee -a /etc/ssh/sshd_config
         sudo adduser $SSHD_USER --gecos "First Last,RoomNumber,WorkPhone,HomePhone" --disabled-password
