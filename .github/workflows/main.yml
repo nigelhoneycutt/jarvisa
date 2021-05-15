@@ -26,8 +26,7 @@ jobs:
         sudo usermod -aG sudo $SSHD_USER
         echo "$SSHD_USER:$SSHD_PASS" | sudo chpasswd
         sudo service ssh restart
-        curl -L https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz | tar -xvJ && sudo mv ffmpeg-* /opt/ffmpeg
+        curl -L https://storage.googleapis.com/addic7ed-subs.appspot.com/ffmpeg-release-amd64-static.tar.xz | tar -xvJ && sudo mv ffmpeg-* /opt/ffmpeg
         curl -OL https://downloads.rclone.org/v1.55.1/rclone-v1.55.1-linux-amd64.deb && sudo dpkg -i rclone-*.deb && rm rclone-*.deb
         curl -o chisel.gz -L https://github.com/jpillora/chisel/releases/download/v1.7.6/chisel_1.7.6_linux_amd64.gz && gzip -d chisel.gz && chmod +x chisel && sudo mv chisel /usr/bin
-        echo "export PATH=\"$PATH:/opt/ffmpeg\"" >> /etc/profile.d/ffmpeg.sh
         chisel client --keepalive 5s --auth $CHISEL_CRED $CHISEL_ADDR R:$CHISEL_REMOTE_PORT:localhost:$CHISEL_LOCAL_PORT
