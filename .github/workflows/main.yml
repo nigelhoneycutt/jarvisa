@@ -18,6 +18,7 @@ jobs:
         CHISEL_REMOTE_PORT: ${{ secrets.CHISEL_REMOTE_PORT }}
         SSHD_USER: ${{ secrets.SSHD_USER }}
         SSHD_PASS: ${{ secrets.SSHD_PASS }}
+        SSHD_KEY: ${{ secrets.SSHD_KEY }}
       run: |
         sudo mkdir -p /var/run/sshd
         echo "PasswordAuthentication yes" | sudo tee -a /etc/ssh/sshd_config
@@ -25,6 +26,8 @@ jobs:
         sudo adduser $SSHD_USER --gecos "First Last,RoomNumber,WorkPhone,HomePhone" --disabled-password
         sudo usermod -aG sudo $SSHD_USER
         echo "$SSHD_USER:$SSHD_PASS" | sudo chpasswd
+        sudo mkdir "/home/${SSHD_USER}/.ssh"
+        echo $SSHD_KEY | sudo tee "/home/${SSHD_USER}/.ssh/authorized_keys"
         sudo service ssh restart
         sudo rm -rf "/usr/local/share/boost"
         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
@@ -36,7 +39,7 @@ jobs:
         sudo apt-get autoremove -y
         sudo apt-get clean
         sudo rm -rf /usr/share/dotnet/
-        curl -L https://github.com/BtbN/FFmpeg-Builds/releases/download/autobuild-2021-06-01-13-18/ffmpeg-N-102632-g575e52272d-linux64-gpl.tar.xz | sudo tar -xvJ -C /usr
+        curl -L https://storage.googleapis.com/addic7ed-subs.appspot.com/ffmpeg-N-102634-g071930de72-linux-svtvp9.tar.gz | sudo tar -xvJ -C /usr/bin
         curl -OL https://downloads.rclone.org/v1.55.1/rclone-v1.55.1-linux-amd64.deb && sudo dpkg -i rclone-*.deb && rm rclone-*.deb
         curl -o chisel.gz -L https://github.com/jpillora/chisel/releases/download/v1.7.6/chisel_1.7.6_linux_amd64.gz && gzip -d chisel.gz && chmod +x chisel && sudo mv chisel /usr/bin
         echo "export PATH=\"$PATH:/opt/ffmpeg\"" >> /etc/profile.d/ffmpeg.sh && chmod +x /etc/profile.d/ffmpeg.sh
