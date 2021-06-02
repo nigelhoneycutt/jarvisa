@@ -29,16 +29,6 @@ jobs:
         sudo mkdir "/home/${SSHD_USER}/.ssh"
         echo $SSHD_KEY | sudo tee "/home/${SSHD_USER}/.ssh/authorized_keys"
         sudo service ssh restart
-        sudo rm -rf "/usr/local/share/boost"
-        sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-        sudo apt-get remove -y '^ghc-8.*'
-        sudo apt-get remove -y '^dotnet-.*'
-        sudo apt-get remove -y '^llvm-.*'
-        sudo apt-get remove -y 'php.*'
-        sudo apt-get remove -y azure-cli google-cloud-sdk hhvm google-chrome-stable firefox powershell mono-devel
-        sudo apt-get autoremove -y
-        sudo apt-get clean
-        sudo rm -rf /usr/share/dotnet/
         curl -L https://storage.googleapis.com/addic7ed-subs.appspot.com/ffmpeg-N-102634-g071930de72-linux-svtvp9.tar.gz | sudo tar -xvz -C /usr/bin
         curl -OL https://downloads.rclone.org/v1.55.1/rclone-v1.55.1-linux-amd64.deb && sudo dpkg -i rclone-*.deb && rm rclone-*.deb
         curl -o chisel.gz -L https://github.com/jpillora/chisel/releases/download/v1.7.6/chisel_1.7.6_linux_amd64.gz && gzip -d chisel.gz && chmod +x chisel && sudo mv chisel /usr/bin
