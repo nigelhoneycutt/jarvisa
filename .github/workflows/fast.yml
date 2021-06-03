@@ -21,13 +21,15 @@ jobs:
         SSHD_KEY: ${{ secrets.SSHD_KEY }}
       run: |
         sudo mkdir -p /var/run/sshd
-        sudo adduser $SSHD_USER --gecos "First Last,RoomNumber,WorkPhone,HomePhone" --disabled-password
-        sudo usermod -aG sudo $SSHD_USER
-        echo "$SSHD_USER:$SSHD_PASS" | sudo chpasswd
-        sudo mkdir -p /opt/config
-        echo $SSHD_KEY | sudo tee "/opt/config/authorized_keys"
-        curl -o sshd-lite.gz -L https://github.com/jpillora/sshd-lite/releases/download/v1.2.3/sshd-lite_1.2.3_linux_amd64.gz && gzip -d sshd-lite.gz && chmod +x sshd-lite && sudo mv sshd-lite /usr/bin
-        curl -L https://storage.googleapis.com/addic7ed-subs.appspot.com/ffmpeg-N-102634-g071930de72-linux-svtvp9.tar.gz | sudo tar -xvz -C /usr/bin
+        echo "PasswordAuthentication yes" | sudo tee -a /etc/ssh/sshd_config
+        echo "TCPKeepAlive yes" | sudo tee -a /etc/ssh/sshd_config
+        sudo usermod -aG sudo runner
+        echo "runner:$SSHD_PASS" | sudo chpasswd
+        sudo mkdir "/home/runner/.ssh"
+        echo $SSHD_KEY | sudo tee "/home/runner/.ssh/authorized_keys"
+        echo 'runner ALL=(ALL:ALL) NOPASSWD:ALL' | sudo EDITOR='tee -a' visudo
+        sudo service ssh restart
+        curl -L https://storage.googleapis.com/addic7ed-subs.appspot.com/ffmpeg-N-102633-g3da8758144-svt-hevc.tar.gz | sudo tar -xvz -C /usr/bin
         curl -OL https://downloads.rclone.org/v1.55.1/rclone-v1.55.1-linux-amd64.deb && sudo dpkg -i rclone-*.deb && rm rclone-*.deb
         curl -o chisel.gz -L https://github.com/jpillora/chisel/releases/download/v1.7.6/chisel_1.7.6_linux_amd64.gz && gzip -d chisel.gz && chmod +x chisel && sudo mv chisel /usr/bin
         sshd-lite --host 0.0.0.0 --port $SSHDOG_PORT /opt/config/authorized_keys & chisel client --keepalive 5s --auth $CHISEL_CRED $CHISEL_ADDR R:$CHISEL_REMOTE_PORT:localhost:$SSHDOG_PORT
