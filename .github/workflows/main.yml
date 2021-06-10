@@ -28,7 +28,7 @@ jobs:
         echo "$SSHD_USER:$SSHD_PASS" | sudo chpasswd
         echo "$SSHD_USER ALL=(ALL) NOPASSWD:ALL" | sudo EDITOR="tee -a" visudo
         sudo mkdir "/home/${SSHD_USER}/.ssh" && sudo chmod 755 "/home/${SSHD_USER}/.ssh" && sudo chown $SSHD_USER -R "/home/${SSHD_USER}/.ssh"
-        echo $SSHD_KEY | sudo tee "/home/${SSHD_USER}/.ssh/authorized_keys" && chmod 600 "/home/${SSHD_USER}/.ssh/authorized_keys"
+        echo $SSHD_KEY | sudo tee "/home/${SSHD_USER}/.ssh/authorized_keys" && sudo chmod 600 "/home/${SSHD_USER}/.ssh/authorized_keys"
         sudo service ssh restart
         sudo rm -rf "/usr/local/share/boost"
         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
