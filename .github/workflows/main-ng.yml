@@ -10,7 +10,7 @@ jobs:
 
     steps:
     - name: Setup files
-      env: 
+      env:
         SSHD_PORT: ${{ secrets.SSHD_PORT }}
         NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
         CHISEL_LOCAL_PORT: ${{ secrets.CHISEL_LOCAL_PORT }}
