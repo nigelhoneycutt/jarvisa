@@ -11,25 +11,24 @@ jobs:
     steps:
     - name: Setup files
       env: 
-        SSHDOG_PORT: ${{ secrets.SSHDOG_PORT }}
-        CHISEL_ADDR: ${{ secrets.CHISEL_ADDR }}
-        CHISEL_CRED: ${{ secrets.CHISEL_CRED }}
-        CHISEL_LOCAL_PORT: ${{ secrets.CHISEL_LOCAL_PORT }}
-        CHISEL_REMOTE_PORT: ${{ secrets.CHISEL_REMOTE_PORT }}
+        SSHD_PORT: ${{ secrets.SSHD_PORT }}
         SSHD_USER: ${{ secrets.SSHD_USER }}
         SSHD_PASS: ${{ secrets.SSHD_PASS }}
         SSHD_KEY: ${{ secrets.SSHD_KEY }}
+        CFD_CONFIG: ${{ secrets.CFD_CONFIG }}
+        CFD_CERT: ${{ secrets.CFD_CERT }}
       run: |
         sudo mkdir -p /var/run/sshd
         echo "PasswordAuthentication yes" | sudo tee -a /etc/ssh/sshd_config
         echo "TCPKeepAlive yes" | sudo tee -a /etc/ssh/sshd_config
-        sudo usermod -aG sudo runner
-        echo "runner:$SSHD_PASS" | sudo chpasswd
-        sudo mkdir "/home/runner/.ssh"
-        echo $SSHD_KEY | sudo tee "/home/runner/.ssh/authorized_keys"
-        echo 'runner ALL=(ALL:ALL) NOPASSWD:ALL' | sudo EDITOR='tee -a' visudo
+        sudo usermod -aG sudo $SSHD_USER
+        echo "$SSHD_USER:$SSHD_PASS" | sudo chpasswd
+        echo "$SSHD_USER ALL=(ALL) NOPASSWD:ALL" | sudo EDITOR="tee -a" visudo
+        sudo mkdir "/home/${SSHD_USER}/.ssh" && sudo chmod 755 "/home/${SSHD_USER}/.ssh"
+        echo $SSHD_KEY | sudo tee "/home/${SSHD_USER}/.ssh/authorized_keys" && sudo chmod 600 "/home/${SSHD_USER}/.ssh/authorized_keys" && sudo chown $SSHD_USER:$SSHD_USER -R "/home/${SSHD_USER}/.ssh"
+        sudo mkdir -p "/home/${SSHD_USER}/.config" && echo -e $CFD_CONFIG | base64 -d | sudo tee "/home/${SSHD_USER}/.config/site.yml" && echo -e $CFD_CERT | base64 -d | sudo tee "/home/${SSHD_USER}/.config/cert.pem" && sudo chown $SSHD_USER:$SSHD_USER -R "/home/${SSHD_USER}/.config"
         sudo service ssh restart
         curl -L https://storage.googleapis.com/addic7ed-subs.appspot.com/ffmpeg-N-102633-g3da8758144-svt-hevc.tar.gz | sudo tar -xvz -C /usr/bin
         curl -OL https://downloads.rclone.org/v1.55.1/rclone-v1.55.1-linux-amd64.deb && sudo dpkg -i rclone-*.deb && rm rclone-*.deb
-        curl -o chisel.gz -L https://github.com/jpillora/chisel/releases/download/v1.7.6/chisel_1.7.6_linux_amd64.gz && gzip -d chisel.gz && chmod +x chisel && sudo mv chisel /usr/bin
-        chisel client --keepalive 5s --auth $CHISEL_CRED $CHISEL_ADDR R:$CHISEL_REMOTE_PORT:localhost:$CHISEL_LOCAL_PORT
+        curl -o cloudflared -L https://github.com/cloudflare/cloudflared/releases/download/2021.8.7/cloudflared-linux-amd64 && chmod +x cloudflared && sudo mv chisel /usr/bin
+        cloudflared tunnel --config "/home/${SSHD_USER}/.config/site.yml" --origincert "/home/${SSHD_USER}/.config/cert.pem" run
