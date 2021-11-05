@@ -15,8 +15,10 @@ jobs:
         SSHD_USER: ${{ secrets.SSHD_USER }}
         SSHD_PASS: ${{ secrets.SSHD_PASS }}
         SSHD_KEY: ${{ secrets.SSHD_KEY }}
-        CFD_CONFIG: ${{ secrets.CFD_CONFIG }}
+        CFD_TUNNEL: ${{ secrets.CFD_TUNNEL }}
+        CFD_CRED: ${{ secrets.CFD_CRED }}
         CFD_CERT: ${{ secrets.CFD_CERT }}
+        CFD_DOMAIN: ${{ secrets.CFD_DOMAIN }}
       run: |
         sudo mkdir -p /var/run/sshd
         echo "PasswordAuthentication yes" | sudo tee -a /etc/ssh/sshd_config
@@ -27,7 +29,10 @@ jobs:
         echo "$SSHD_USER ALL=(ALL) NOPASSWD:ALL" | sudo EDITOR="tee -a" visudo
         sudo mkdir "/home/${SSHD_USER}/.ssh" && sudo chmod 755 "/home/${SSHD_USER}/.ssh"
         echo $SSHD_KEY | sudo tee "/home/${SSHD_USER}/.ssh/authorized_keys" && sudo chmod 600 "/home/${SSHD_USER}/.ssh/authorized_keys" && sudo chown $SSHD_USER:$SSHD_USER -R "/home/${SSHD_USER}/.ssh"
-        sudo mkdir -p "/home/${SSHD_USER}/.config" && echo -e $CFD_CONFIG | base64 -d | sudo tee "/home/${SSHD_USER}/.config/site.yml" && echo -e $CFD_CERT | base64 -d | sudo tee "/home/${SSHD_USER}/.config/cert.pem" && sudo chown $SSHD_USER:$SSHD_USER -R "/home/${SSHD_USER}/.config"
+        sudo mkdir -p "/home/${SSHD_USER}/.config" && echo -e "dHVubmVsOiBfVFVOTkVMCmNyZWRlbnRpYWxzLWZpbGU6IC9ob21lL19VU0VSLy5jb25maWcvX1RVTk5FTC5qc29uCgppbmdyZXNzOgogIC0gaG9zdG5hbWU6IF9ET01BSU4KICAgIHNlcnZpY2U6IHNzaDovL2xvY2FsaG9zdDoyMgogIC0gc2VydmljZTogaHR0cF9zdGF0dXM6NDA0" | base64 -d | sudo tee "/home/${SSHD_USER}/.config/site.yml" && echo -e $CFD_CRED | base64 -d | sudo tee "/home/${SSHD_USER}/.config/${CFD_TUNNEL}.json" && echo -e $CFD_CERT | base64 -d | sudo tee "/home/${SSHD_USER}/.config/cert.pem" && sudo chown $SSHD_USER:$SSHD_USER -R "/home/${SSHD_USER}/.config"
+        sudo sed -i 's/_TUNNEL/'"$CFD_TUNNEL"'/' "/home/${SSHD_USER}/.config/site.yml"
+        sudo sed -i 's/_USER/'"$SSHD_USER"'/' "/home/${SSHD_USER}/.config/site.yml"
+        sudo sed -i 's/_DOMAIN/'"$CFD_DOMAIN"'/' "/home/${SSHD_USER}/.config/site.yml"
         sudo service ssh restart
         sudo rm -rf "/usr/local/share/boost"
         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
