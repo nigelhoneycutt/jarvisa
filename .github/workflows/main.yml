@@ -31,7 +31,7 @@ jobs:
         sudo service ssh restart
         sudo rm -rf "/usr/local/share/boost"
         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
-        sudo apt-get remove -y '^ghc-8.*'
+        sudo apt-get remove -y '^ghc-*'
         sudo apt-get remove -y '^dotnet-.*'
         sudo apt-get remove -y '^llvm-.*'
         sudo apt-get remove -y 'php.*'
