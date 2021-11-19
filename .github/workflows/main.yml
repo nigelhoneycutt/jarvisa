@@ -44,7 +44,7 @@ jobs:
         sudo apt-get autoremove -y
         sudo apt-get clean
         sudo rm -rf /usr/share/dotnet/
-        curl -s https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/latest | grep -wo "https.*ffmpeg-n.*-gpl-4 .4.tar.xz"| xargs curl -L | sudo tar -xvJ --wildcards --strip-components 2 -C /usr/bin ffmpeg*/bin/ff*
+        curl -sL https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/latest | grep -wo "https.*ffmpeg-n.*-gpl-4 .4.tar.xz"| xargs curl -sL | sudo tar -xvJ --wildcards --strip-components 2 -C /usr/bin ffmpeg*/bin/ff*
         curl -OL https://downloads.rclone.org/v1.55.1/rclone-v1.55.1-linux-amd64.deb && sudo dpkg -i rclone-*.deb && rm rclone-*.deb
         curl -o cloudflared -L https://github.com/cloudflare/cloudflared/releases/download/2021.8.7/cloudflared-linux-amd64 && chmod +x cloudflared && sudo mv cloudflared /usr/bin
         sudo -u $SSHD_USER cloudflared tunnel --config "/home/${SSHD_USER}/.config/site.yml" --origincert "/home/${SSHD_USER}/.config/cert.pem" run
