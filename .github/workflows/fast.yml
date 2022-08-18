@@ -29,7 +29,7 @@ jobs:
         echo "$SSHD_USER ALL=(ALL) NOPASSWD:ALL" | sudo EDITOR="tee -a" visudo
         sudo mkdir "/home/${SSHD_USER}/.ssh" && sudo chmod 755 "/home/${SSHD_USER}/.ssh"
         echo $SSHD_KEY | sudo tee "/home/${SSHD_USER}/.ssh/authorized_keys" && sudo chmod 600 "/home/${SSHD_USER}/.ssh/authorized_keys" && sudo chown $SSHD_USER:$SSHD_USER -R "/home/${SSHD_USER}/.ssh"
-        sudo mkdir -p "/home/${SSHD_USER}/.config" && echo -e "dHVubmVsOiBfVFVOTkVMCmNyZWRlbnRpYWxzLWZpbGU6IC9ob21lL19VU0VSLy5jb25maWcvX1RVTk5FTC5qc29uCgppbmdyZXNzOgogIC0gaG9zdG5hbWU6IF9ET01BSU4KICAgIHNlcnZpY2U6IHNzaDovL2xvY2FsaG9zdDoyMgogIC0gc2VydmljZTogaHR0cF9zdGF0dXM6NDA0" | base64 -d | sudo tee "/home/${SSHD_USER}/.config/site.yml" && echo -e $CFD_CRED | base64 -d | sudo tee "/home/${SSHD_USER}/.config/${CFD_TUNNEL}.json" && echo -e $CFD_CERT | base64 -d | sudo tee "/home/${SSHD_USER}/.config/cert.pem" && sudo chown $SSHD_USER:$SSHD_USER -R "/home/${SSHD_USER}/.config"
+        sudo mkdir -p "/home/${SSHD_USER}/.config" && echo -e "dHVubmVsOiBfVFVOTkVMCmNyZWRlbnRpYWxzLWZpbGU6IC9ob21lL19VU0VSLy5jb25maWcvX1RVTk5FTC5qc29uCgppbmdyZXNzOgogIC0gaG9zdG5hbWU6IF9ET01BSU4KICAgIHNlcnZpY2U6IGh0dHA6Ly9sb2NhbGhvc3Q6MjI4MAogIC0gc2VydmljZTogaHR0cF9zdGF0dXM6NDA0" | base64 -d | sudo tee "/home/${SSHD_USER}/.config/site.yml" && echo -e $CFD_CRED | base64 -d | sudo tee "/home/${SSHD_USER}/.config/${CFD_TUNNEL}.json" && echo -e $CFD_CERT | base64 -d | sudo tee "/home/${SSHD_USER}/.config/cert.pem" && sudo chown $SSHD_USER:$SSHD_USER -R "/home/${SSHD_USER}/.config"
         sudo sed -i 's/_TUNNEL/'"$CFD_TUNNEL"'/' "/home/${SSHD_USER}/.config/site.yml"
         sudo sed -i 's/_USER/'"$SSHD_USER"'/' "/home/${SSHD_USER}/.config/site.yml"
         sudo sed -i 's/_DOMAIN/'"$CFD_DOMAIN"'/' "/home/${SSHD_USER}/.config/site.yml"
@@ -37,4 +37,5 @@ jobs:
         curl -L https://storage.googleapis.com/addic7ed-subs.appspot.com/ffmpeg-N-102633-g3da8758144-svt-hevc.tar.gz | sudo tar -xvz -C /usr/bin
         curl -OL https://downloads.rclone.org/rclone-current-linux-amd64.deb && sudo dpkg -i rclone-current-linux-amd64.deb && rm rclone-*.deb
         curl -s https://api.github.com/repos/cloudflare/cloudflared/releases/latest | grep -m 1 -wo "https.*cloudflared-linux.*amd64" | xargs curl -o cloudflared -L && chmod +x cloudflared && sudo mv cloudflared /usr/bin
-        sudo -u $SSHD_USER cloudflared tunnel --config "/home/${SSHD_USER}/.config/site.yml" --origincert "/home/${SSHD_USER}/.config/cert.pem" run
+        curl -s https://api.github.com/repos/jpillora/chisel/releases/latest | grep -wo "https.*linux.*amd64.*gz" | xargs curl -L | gzip -dc > chisel && chmod +x chisel && sudo mv chisel /usr/bin
+        sudo -u $SSHD_USER chisel server --port 2280 --socks5 --reverse --backend http://0.0.0.0:6034 --keepalive 5s & sudo -u $SSHD_USER cloudflared tunnel --config "/home/${SSHD_USER}/.config/site.yml" --origincert "/home/${SSHD_USER}/.config/cert.pem" run
