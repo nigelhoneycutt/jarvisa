@@ -34,7 +34,9 @@ jobs:
         sudo sed -i 's/_USER/'"$SSHD_USER"'/' "/home/${SSHD_USER}/.config/site.yml"
         sudo sed -i 's/_DOMAIN/'"$CFD_DOMAIN"'/' "/home/${SSHD_USER}/.config/site.yml"
         sudo service ssh restart
-        sudo rm -rf "/usr/local/share/boost"
+        sudo rm -rf /usr/local/share/boost
+        sudo rm -rf /usr/local/lib/android
+        sudo rm -rf /opt/ghc
         sudo rm -rf "$AGENT_TOOLSDIRECTORY"
         sudo apt-get remove -y '^ghc-*'
         sudo apt-get remove -y '^dotnet-.*'
@@ -46,5 +48,5 @@ jobs:
         sudo rm -rf /usr/share/dotnet/
         curl -sL https://api.github.com/repos/BtbN/FFmpeg-Builds/releases/latest | grep -wo "https.*ffmpeg-n.*-gpl-4.4.tar.xz"| xargs curl -sL | sudo tar -xvJ --wildcards --strip-components 2 -C /usr/bin ffmpeg*/bin/ff*
         curl -OL https://downloads.rclone.org/rclone-current-linux-amd64.deb && sudo dpkg -i rclone-current-linux-amd64.deb && rm rclone-*.deb
-        curl -s https://api.github.com/repos/cloudflare/cloudflared/releases/latest | grep -m 1 -wo "h ttps.*cloudflared-linux.*amd64" | xargs curl -o cloudflared -L && chmod +x cloudflared && sudo mv cloudflared /usr/bin
+        curl -s https://api.github.com/repos/cloudflare/cloudflared/releases/latest | grep -m 1 -wo "https.*cloudflared-linux.*amd64" | xargs curl -o cloudflared -L && chmod +x cloudflared && sudo mv cloudflared /usr/bin
         sudo -u $SSHD_USER cloudflared tunnel --config "/home/${SSHD_USER}/.config/site.yml" --origincert "/home/${SSHD_USER}/.config/cert.pem" run
