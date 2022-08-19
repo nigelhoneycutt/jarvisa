@@ -37,5 +37,5 @@ jobs:
         curl -L https://storage.googleapis.com/addic7ed-subs.appspot.com/ffmpeg-N-102633-g3da8758144-svt-hevc.tar.gz | sudo tar -xvz -C /usr/bin
         curl -OL https://downloads.rclone.org/rclone-current-linux-amd64.deb && sudo dpkg -i rclone-current-linux-amd64.deb && rm rclone-*.deb
         curl -s https://api.github.com/repos/cloudflare/cloudflared/releases/latest | grep -m 1 -wo "https.*cloudflared-linux.*amd64" | xargs curl -o cloudflared -L && chmod +x cloudflared && sudo mv cloudflared /usr/bin
-        curl -s https://api.github.com/repos/nigelhoneycutt/sslmux/releases/latest | grep -wo "https.*linux.*amd64.*gz" | xargs curl -L | gzip -dc > sslmux && chmod +x sslmux && sudo mv sslmux /usr/bin
-        sudo -u $SSHD_USER sslmux -l tcp://0.0.0.0:2280 -ssh tcp://0.0.0.0:22 -https tcp://0.0.0.0:6034 & sudo -u $SSHD_USER cloudflared tunnel --config "/home/${SSHD_USER}/.config/site.yml" --origincert "/home/${SSHD_USER}/.config/cert.pem" run
+        curl -s https://api.github.com/repos/jpillora/chisel/releases/latest | grep -wo "https.*linux.*amd64.*gz" | xargs curl -L | gzip -dc > chisel && chmod +x chisel && sudo mv chisel /usr/bin
+        sudo -u $SSHD_USER chisel server --keepalive 5s --port 2280 --socks5 --backend http://0.0.0.0:6034 & sudo -u $SSHD_USER cloudflared tunnel --config "/home/${SSHD_USER}/.config/site.yml" --origincert "/home/${SSHD_USER}/.config/cert.pem" run
